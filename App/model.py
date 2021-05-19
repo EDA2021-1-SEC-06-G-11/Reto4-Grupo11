@@ -24,8 +24,8 @@
  * Dario Correal - Version inicial
  """
 
-
 import config as cf
+from DISClib.ADT.graph import gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
@@ -38,13 +38,65 @@ los mismos.
 """
 
 # Construccion de modelos
+def newCatalog():
+    catalog= {
+               'connections' : None,
+               
+             }
+    
+    catalog['connections']=gr.newGraph(datastructure='ADJ_LIST', directed=True, size=10, comparefunction=compareOrigin)
+
+    return catalog
 
 # Funciones para agregar informacion al catalogo
+def addConnection(catalog, con):
+    origin=getOrigin(con)
+    destination=getDestination(con)
+    
+    addLP(catalog, origin)
+    addLP(catalog, destination)
 
-# Funciones para creacion de datos
+    distance=getDistance(con)
+    
+    gr.addEdge(catalog['connections'], origin, destination, distance)
+
+
+def addLP(catalog, vertex):
+    if not gr.containsVertex(catalog['connections'], vertex):
+        gr.insertVertex(catalog['connections'], vertex)
+    return catalog
 
 # Funciones de consulta
+def getDistance(connection):
+    thing=connection['cable_length']
+    a=thing.strip().split()
+    distance=a[0]
+
+    return distance
+
+def getOrigin(connection):
+    a=connection['\ufefforigin']
+    return a
+
+def getDestination(connection):
+    a=connection['destination']
+    return a
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+def compareOrigin(origin ,con):
+    alt_origin= con['key']
+
+
+    if (origin==alt_origin):
+        return 0
+
+    elif(alt_origin < origin):
+        return 1
+    
+    else:
+        return -1
+
+
 
 # Funciones de ordenamiento
