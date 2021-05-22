@@ -37,7 +37,9 @@ def init():
 
 # Funciones para la carga de datos
 def loadData(catalog):
+    loadCountries(catalog)
     loadConnections(catalog)
+    loadLandingPoints(catalog)
 
 
 def loadConnections(catalog):
@@ -46,6 +48,20 @@ def loadConnections(catalog):
 
     for con in input_file:
         model.addConnection(catalog, con)
+
+def loadCountries(catalog):
+    c_file= cf.data_dir + 'countries.csv'
+    input_file= csv.DictReader(open(c_file, encoding='utf-8'))
+    
+    for country in input_file:
+        model.addCountry(catalog, country)
+
+def loadLandingPoints(catalog):
+    lp_file= cf.data_dir + 'landing_points.csv'
+    input_file= csv.DictReader(open(lp_file, encoding='utf-8'))
+
+    for lp in input_file:
+        model.addLandingPoint(catalog, lp)
 
 
 # Funciones de ordenamiento

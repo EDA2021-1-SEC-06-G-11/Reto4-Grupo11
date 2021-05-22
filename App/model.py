@@ -41,30 +41,78 @@ los mismos.
 def newCatalog():
     catalog= {
                'connections' : None,
-               
+               'landing_points':None,
+               'LP_NtoI': None
              }
     
-    catalog['connections']=gr.newGraph(datastructure='ADJ_LIST', directed=True, size=10, comparefunction=compareOrigin)
-
+    catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=True, size=10, comparefunction=compareOrigin)
+    catalog['landing_points']=mp.newMap(maptype='PROBING', loadfactor=0.5)
+    catalog['LP_NtoI']=mp.newMap(maptype='PROBING', loadfactor=0.5)
+    catalog['countries']=mp.newMap(maptype='PROBING', loadfactor=0.5)
+    catalog['connections']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addConnection(catalog, con):
     origin=getOrigin(con)
     destination=getDestination(con)
-    
+    name=getName(con).lower().strip()
+
+    addToCMAP(catalog, name, origin, destination, con)
+
     addLP(catalog, origin)
     addLP(catalog, destination)
 
     distance=getDistance(con)
     
-    gr.addEdge(catalog['connections'], origin, destination, distance)
+    gr.addEdge(catalog['connections_graph'], origin, destination, distance)
+
+def addCountry(catalog, country):
+    c=getCountry(country).strip().lower()
+    country['landing_points']=lt.newList()
+    country['connections']=lt.newList()
+
+    mp.put(catalog['countries'], c, country)
+
+
+def addLandingPoint(catalog, lp):
+    name=getLPname(lp)
+    name=name['name'].lower().strip()
+    id=int(getLPid(lp))
+
+    mp.put(catalog['LP_NtoI'], name, id)
+    mp.put(catalog['landing_points'], id, lp)
 
 
 def addLP(catalog, vertex):
-    if not gr.containsVertex(catalog['connections'], vertex):
-        gr.insertVertex(catalog['connections'], vertex)
+    if not gr.containsVertex(catalog['connections_graph'], vertex):
+        gr.insertVertex(catalog['connections_graph'], vertex)
     return catalog
+
+def addToCMAP(catalog, name, origin, destination, con):
+
+    if mp.contains(catalog['connections'], name) == True:
+        a=mp.get(catalog['connections'], name)
+        a=me.getValue(a)
+
+        if mp.contains(a, origin)== True:
+            b=mp.get(a,origin)
+            b=me.getValue(b)
+
+            mp.put(b, destination, con) 
+
+        else:
+            b=mp.newMap(maptype='PROBING', loadfactor=0.5)
+            mp.put(b, destination, con)
+            mp.put(a, origin, b)
+
+    else:
+        b=mp.newMap(maptype='PROBING', loadfactor=0.5)
+        mp.put(b, destination, con)
+        a=mp.newMap(maptype='PROBING', loadfactor=0.5)
+        mp.put(a, origin, b)
+        mp.put(catalog['connections'], name, a)
+        
 
 # Funciones de consulta
 def getDistance(connection):
@@ -80,6 +128,25 @@ def getOrigin(connection):
 
 def getDestination(connection):
     a=connection['destination']
+    return a
+
+def getName(connection):
+    a=connection['cable_name']
+    return a
+
+def getLPname(landing_point):
+    a=landing_point['name']
+    a=a.strip().lower().split()
+    k=len(a)-1
+    b={'name':a[0], 'country':a[k]}
+    return b
+
+def getLPid(landing_point):
+    a=landing_point['landing_point_id']
+    return a
+
+def getCountry(country):
+    a=country['CountryName']
     return a
 
 
