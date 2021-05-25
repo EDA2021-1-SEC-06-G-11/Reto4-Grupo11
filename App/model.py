@@ -25,7 +25,7 @@
  """
 
 import config as cf
-from DISClib.ADT.graph import gr
+from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
@@ -77,7 +77,10 @@ def addCountry(catalog, country):
 
 def addLandingPoint(catalog, lp):
     name=getLPname(lp)
+    lp['country']=name['country']
+    lp['namee']=name['name']
     name=name['name'].lower().strip()
+    
     id=int(getLPid(lp))
 
     mp.put(catalog['LP_NtoI'], name, id)
@@ -149,6 +152,28 @@ def getCountry(country):
     a=country['CountryName']
     return a
 
+def reque2(catalog):
+    ans={'k':0, 'DC':mp.newMap(maptype='PROBING')}
+    graph=catalog['connections_graph']
+    v=gr.vertices(graph)
+
+    y=1
+    while y<=lt.size(v):
+        v1=lt.getElement(v, y)
+        ad_v1=gr.adjacents(graph, v1)
+
+        if lt.size(ad_v1)>1:
+            a1=sumando(graph, v1, ad_v1, ans)
+            lp=mp.get(catalog['landing_points'], int(v1))
+            lp=me.getValue(lp)
+            mp.put(ans['DC'], v1, lp)
+            a2=gr.degree(graph, v1)
+            ans['k']+=a2+a1
+            
+        y+=1
+    return ans
+
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 def compareOrigin(origin ,con):
@@ -167,3 +192,18 @@ def compareOrigin(origin ,con):
 
 
 # Funciones de ordenamiento
+def sumando(graph, v1, ad_v1, ans):
+    m=ans['DC']
+    y=1
+    a=0
+
+    while y<=lt.size(ad_v1):
+        sub_v=lt.getElement(ad_v1, y)
+        
+        if mp.contains(m, sub_v)==True:
+
+            if gr.getEdge(graph, v1, sub_v)!=None: a+=-1
+            if gr.getEdge(graph, sub_v, v1)!=None: a+=-1
+        
+        y+=1
+    return a

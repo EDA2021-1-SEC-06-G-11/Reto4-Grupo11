@@ -34,6 +34,7 @@ El controlador se encarga de mediar entre la vista y el modelo.
 def init():
     catalog=model.newCatalog()
     loadData(catalog)
+    return catalog
 
 # Funciones para la carga de datos
 def loadData(catalog):
@@ -67,3 +68,7 @@ def loadLandingPoints(catalog):
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+
+def reque2(catalog):
+    ans=model.reque2(catalog)
+    return ans
