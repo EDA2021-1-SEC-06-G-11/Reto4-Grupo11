@@ -40,7 +40,7 @@ line='-----------------------------------------------------'
 def p_rq3(ans):
     print(line)
     main=mp.valueSet(ans['DC'])
-    print('Se encontraron {0} landing points que sirven de interconexion: '.format(lt.size(main)))
+    print('Se encontraron {0} landing points que sirven de interconexion para {1} cables'.format(lt.size(main), ans['k'])) 
     y=1
 
     while y<=lt.size(main):
@@ -57,6 +57,8 @@ def printMenu():
     print("1- Cargar información en el catálogo")
     print("2-  ")
     print('3- Requerimiento 2- Landing points interconectados')
+    print('4-  ')
+    print('5- Requerimiento 4- Evaluación de infraestructura crítica')
     print(line)
 
 catalog = None
@@ -92,10 +94,17 @@ while True:
         pass
 
     elif int(inputs[0]) == 3:
-        print('Calculando interconexión de landing points')
+        print('Calculando interconexión de landing points... ')
         ans=controller.reque2(catalog)
-        print ('ya')
         p_rq3(ans)
+
+    elif int(inputs[0]) == 5:
+        print('Calculando red de expasión minima... ')
+        ans=controller.reque4(catalog)
+        print ('ya')
+        'p_rq4(ans)'
+
+
 
     else:
         sys.exit(0)

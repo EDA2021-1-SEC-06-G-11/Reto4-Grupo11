@@ -25,6 +25,7 @@
  """
 
 import config as cf
+from DISClib.Algorithms.Graphs import dijsktra as dj
 from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -45,7 +46,7 @@ def newCatalog():
                'LP_NtoI': None
              }
     
-    catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=True, size=10, comparefunction=compareOrigin)
+    catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=False, size=10, comparefunction=compareOrigin)
     catalog['landing_points']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['LP_NtoI']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['countries']=mp.newMap(maptype='PROBING', loadfactor=0.5)
@@ -54,8 +55,8 @@ def newCatalog():
 
 # Funciones para agregar informacion al catalogo
 def addConnection(catalog, con):
-    origin=getOrigin(con)
-    destination=getDestination(con)
+    origin=int(getOrigin(con))
+    destination=int(getDestination(con))
     name=getName(con).lower().strip()
 
     addToCMAP(catalog, name, origin, destination, con)
@@ -65,7 +66,8 @@ def addConnection(catalog, con):
 
     distance=getDistance(con)
     
-    gr.addEdge(catalog['connections_graph'], origin, destination, distance)
+    if distance>0:
+        gr.addEdge(catalog['connections_graph'], origin, destination, distance)
 
 def addCountry(catalog, country):
     c=getCountry(country).strip().lower()
@@ -121,9 +123,21 @@ def addToCMAP(catalog, name, origin, destination, con):
 def getDistance(connection):
     thing=connection['cable_length']
     a=thing.strip().split()
-    distance=a[0]
+    d=a[0]
+    d=d.split(',')
 
-    return distance
+    if d[0]=='n.a.':
+        distance=0
+    
+    elif len(d)>1:
+        distance=d[0]+'.'+d[1]
+        distance=distance.strip()
+        
+    
+    else:
+        distance=d[0]
+
+    return float(distance)
 
 def getOrigin(connection):
     a=connection['\ufefforigin']
@@ -173,6 +187,13 @@ def reque2(catalog):
         y+=1
     return ans
 
+def reque4(catalog):
+    v=SMN(catalog['connections_graph'])
+    main=dj.Dijkstra(catalog['connections_graph'], v)
+    ans={'nodes':0 , 'total_km': 0 , 'largest_branch':0}
+    ans['nodes']=lt.size(gr.vertices(main))
+    print(gr.edges(main))
+    ans['total_km']=conteocables(gr.edges(main))
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -207,3 +228,21 @@ def sumando(graph, v1, ad_v1, ans):
         
         y+=1
     return a
+
+def SMN(graph):
+    a=gr.vertices(graph)
+    y=1
+
+    while y<=lt.size(a):
+        v=int(lt.getElement(a, y))
+
+        try:
+            ans=dj.Dijkstra(graph, v)
+
+        except:
+            None
+        
+        finally:
+            return dj.Dijkstra(graph, v)
+        
+        y+=1
