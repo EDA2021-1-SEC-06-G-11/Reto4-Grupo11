@@ -49,6 +49,7 @@ def newCatalog():
              }
     
     catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=False, size=10, comparefunction=compareOrigin)
+    catalog['connections_directed'] = gr.newGraph(datastructure='ADJ_LIST',directed=True,size=10,comparefunction=compareOrigin)
     catalog['landing_points']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['LP_NtoI']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['countries']=mp.newMap(maptype='PROBING', loadfactor=0.5)
@@ -70,7 +71,8 @@ def addConnection(catalog, con):
     
     if distance>0:
         gr.addEdge(catalog['connections_graph'], origin, destination, distance)
-
+        gr.addEdge(catalog['connections_directed'], origin, destination, distance)
+    
 def addCountry(catalog, country):
     c=getCountry(country).strip().lower()
     country['landing_points']=lt.newList()
@@ -94,6 +96,8 @@ def addLandingPoint(catalog, lp):
 def addLP(catalog, vertex):
     if not gr.containsVertex(catalog['connections_graph'], vertex):
         gr.insertVertex(catalog['connections_graph'], vertex)
+    if not gr.containsVertex(catalog['connections_directed'],vertex):
+        gr.insertVertex(catalog['connections_directed'],vertex)
     return catalog
 
 def addToCMAP(catalog, name, origin, destination, con):
@@ -155,7 +159,7 @@ def getName(connection):
 
 def getLPname(landing_point):
     a=landing_point['name']
-    a=a.strip().lower().split()
+    a=a.strip().lower().split(', ')
     k=len(a)-1
     b={'name':a[0], 'country':a[k]}
     return b
@@ -198,12 +202,16 @@ def reque4(catalog):
     ans['total_km']=conteocables(gr.edges(main))
 
     
-def reque1(catalog):
+def reque1(catalog,lp1,lp2):
 
-    catalog['components'] = scc.KosarajuSCC(catalog['connections_graph'])
+    catalog['components'] = scc.KosarajuSCC(catalog['connections_directed'])
     num = scc.connectedComponents(catalog['components'])
-
-    return gr.vertices(catalog['connections_graph'])
+    set1 = mp.get(catalog['LP_NtoI'],lp1)
+    id1 = me.getValue(set1)
+    set2 = mp.get(catalog['LP_NtoI'],lp2)
+    id2 = me.getValue(set2)
+    res = scc.stronglyConnected(catalog['components'],id1,id2)
+    return res,num
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista

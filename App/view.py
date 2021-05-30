@@ -27,6 +27,8 @@ from DISClib.ADT import map as mp
 from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 assert cf
+default_limit = 10000
+sys.setrecursionlimit(default_limit*10) 
 
 
 """
@@ -91,9 +93,9 @@ while True:
         .format(a['CountryName'], a['Population'], a['Internet users']))
 
     elif int(inputs[0]) == 2:
-        '''lp1 = input('Escriba el primer landing point: ')
-        lp2 = input('Escriba el segundo landing point: ')'''
-        respuesta = controller.req1(catalog)
+        lp1 = input('Escriba el primer landing point: ')
+        lp2 = input('Escriba el segundo landing point: ')
+        respuesta = controller.reque1(catalog,lp1,lp2)
         print(respuesta)
 
     elif int(inputs[0]) == 3:

@@ -69,6 +69,10 @@ def loadLandingPoints(catalog):
 
 # Funciones de consulta sobre el catálogo
 
+def reque1(catalog,lp1,lp2):
+    ans = model.reque1(catalog,lp1,lp2)
+    return ans
+
 def reque2(catalog):
     ans=model.reque2(catalog)
     return ans
