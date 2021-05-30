@@ -30,6 +30,7 @@ from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
+from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Sorting import shellsort as sa
 assert cf
 
@@ -43,7 +44,8 @@ def newCatalog():
     catalog= {
                'connections' : None,
                'landing_points':None,
-               'LP_NtoI': None
+               'LP_NtoI': None,
+               'components': None
              }
     
     catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=False, size=10, comparefunction=compareOrigin)
@@ -194,6 +196,14 @@ def reque4(catalog):
     ans['nodes']=lt.size(gr.vertices(main))
     print(gr.edges(main))
     ans['total_km']=conteocables(gr.edges(main))
+
+    
+def reque1(catalog):
+
+    catalog['components'] = scc.KosarajuSCC(catalog['connections_graph'])
+    num = scc.connectedComponents(catalog['components'])
+
+    return gr.vertices(catalog['connections_graph'])
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista

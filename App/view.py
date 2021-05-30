@@ -91,7 +91,10 @@ while True:
         .format(a['CountryName'], a['Population'], a['Internet users']))
 
     elif int(inputs[0]) == 2:
-        pass
+        '''lp1 = input('Escriba el primer landing point: ')
+        lp2 = input('Escriba el segundo landing point: ')'''
+        respuesta = controller.req1(catalog)
+        print(respuesta)
 
     elif int(inputs[0]) == 3:
         print('Calculando interconexión de landing points... ')
