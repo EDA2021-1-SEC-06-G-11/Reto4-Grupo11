@@ -68,3 +68,11 @@ def loadLandingPoints(catalog):
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+
+def reque2(catalog):
+    ans=model.reque2(catalog)
+    return ans
+
+def reque4(catalog):
+    ans=model.reque4(catalog)
+    return ans

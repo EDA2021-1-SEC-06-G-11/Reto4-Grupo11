@@ -23,6 +23,8 @@
 import config as cf
 import sys
 import controller
+from DISClib.ADT import map as mp
+from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 assert cf
 
@@ -33,11 +35,31 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
+line='-----------------------------------------------------'
+
+def p_rq3(ans):
+    print(line)
+    main=mp.valueSet(ans['DC'])
+    print('Se encontraron {0} landing points que sirven de interconexion para {1} cables'.format(lt.size(main), ans['k'])) 
+    y=1
+
+    while y<=lt.size(main):
+        a=lt.getElement(main, y)
+        print('Nombre: {0} || País: {1} || ID: {2}'
+        .format(a['namee'], a['country'], a['landing_point_id']))
+
+        y+=1
+    print(line)
+
 
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2-  ")
+    print('3- Requerimiento 2- Landing points interconectados')
+    print('4-  ')
+    print('5- Requerimiento 4- Evaluación de infraestructura crítica')
+    print(line)
 
 catalog = None
 
@@ -49,10 +71,43 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
-        catalog =controller.init()
+        catalog=controller.init()
+        
+        print(line)
+        print('Se cargaron: {0} Landing points, {1} Conexiones, {2} Paises'
+        .format(gr.numVertices(catalog['connections_graph']), gr.numEdges(catalog['connections_graph']), lt.size(mp.keySet(catalog['countries']))))
+        
+        print('Informacion del primer landing point: ')
+        a=mp.valueSet(catalog['landing_points'])
+        a=lt.getElement(a, 1)
+        print('ID: {0} || Nombre: {1} || Latitud: {2} || Longitud: {3}'
+        .format(a['landing_point_id'], a['namee'], a['latitude'], a['longitude']))
+
+        print('Información del último país: ')
+        a=mp.valueSet(catalog['countries'])
+        k=lt.size(a)
+        a=lt.getElement(a,k)
+        print('Pais: {0} || Población: {1} || Usuarios de internet {2}'
+        .format(a['CountryName'], a['Population'], a['Internet users']))
 
     elif int(inputs[0]) == 2:
-        pass
+        '''lp1 = input('Escriba el primer landing point: ')
+        lp2 = input('Escriba el segundo landing point: ')'''
+        respuesta = controller.req1(catalog)
+        print(respuesta)
+
+    elif int(inputs[0]) == 3:
+        print('Calculando interconexión de landing points... ')
+        ans=controller.reque2(catalog)
+        p_rq3(ans)
+
+    elif int(inputs[0]) == 5:
+        print('Calculando red de expasión minima... ')
+        ans=controller.reque4(catalog)
+        print ('ya')
+        'p_rq4(ans)'
+
+
 
     else:
         sys.exit(0)
