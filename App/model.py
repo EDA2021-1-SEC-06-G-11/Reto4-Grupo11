@@ -258,7 +258,6 @@ def LB(l):
 
     while y<=lt.size(l):
         e=lt.getElement(l,y)
-        print(e)
         ew=e['weight']
 
         if w<ew:
