@@ -93,7 +93,6 @@ def addConnection(catalog, con):
     
     if distance>0:
         gr.addEdge(catalog['connections_graph'], origin, destination, distance)
-        gr.addEdge(catalog['connections_directed'], origin, destination, distance)
 
     
     
@@ -141,8 +140,6 @@ def addLandingPoint(catalog, lp):
 def addLP(catalog, vertex):
     if not gr.containsVertex(catalog['connections_graph'], vertex):
         gr.insertVertex(catalog['connections_graph'], vertex)
-    if not gr.containsVertex(catalog['connections_directed'],vertex):
-        gr.insertVertex(catalog['connections_directed'],vertex)
     return catalog
 
 def addToCMAP(catalog, name, origin, destination, con):
@@ -265,7 +262,7 @@ def reque4(catalog):
     
 def reque1(catalog,lp1,lp2):
 
-    catalog['components'] = scc.KosarajuSCC(catalog['connections_directed'])
+    catalog['components'] = scc.KosarajuSCC(catalog['connections_graph'])
     num = scc.connectedComponents(catalog['components'])
     set1 = mp.get(catalog['LP_NtoI'],lp1)
     id1 = me.getValue(set1)
@@ -279,7 +276,7 @@ def reque3(catalog,paisA,paisB):
     pais2 = menor(catalog,paisB)
     respuesta = (pais1,pais2)
 
-    catalog['paths'] = dj.Dijkstra(catalog['connections_directed'],pais1)
+    catalog['paths'] = dj.Dijkstra(catalog['connections_graph'],pais1)
     ruta = dj.pathTo(catalog['paths'],pais2)
     distancia = dj.distTo(catalog['paths'],pais2)
 
