@@ -101,7 +101,7 @@ while True:
     elif int(inputs[0]) == 5:
         print('Calculando red de expasión minima... ')
         ans=controller.reque4(catalog)
-        print ('ya')
+        print(ans)
         'p_rq4(ans)'
 
 

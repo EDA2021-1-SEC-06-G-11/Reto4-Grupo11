@@ -25,7 +25,7 @@
  """
 
 import config as cf
-from DISClib.Algorithms.Graphs import dijsktra as dj
+from DISClib.Algorithms.Graphs import prim as p
 from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -46,7 +46,7 @@ def newCatalog():
                'LP_NtoI': None
              }
     
-    catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=False, size=10, comparefunction=compareOrigin)
+    catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=True, size=10, comparefunction=compareOrigin)
     catalog['landing_points']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['LP_NtoI']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['countries']=mp.newMap(maptype='PROBING', loadfactor=0.5)
@@ -130,12 +130,13 @@ def getDistance(connection):
         distance=0
     
     elif len(d)>1:
-        distance=d[0]+'.'+d[1]
+        distance=d[0]+d[1]
         distance=distance.strip()
         
     
     else:
         distance=d[0]
+
 
     return float(distance)
 
@@ -188,12 +189,13 @@ def reque2(catalog):
     return ans
 
 def reque4(catalog):
-    v=SMN(catalog['connections_graph'])
-    main=dj.Dijkstra(catalog['connections_graph'], v)
+    main=catalog['connections_graph'].copy()
+    a=p.PrimMST(main)
     ans={'nodes':0 , 'total_km': 0 , 'largest_branch':0}
-    ans['nodes']=lt.size(gr.vertices(main))
-    print(gr.edges(main))
-    ans['total_km']=conteocables(gr.edges(main))
+    ans['nodes']=gr.numVertices(main)
+    ans['total_km']=SUMKM(mp.valueSet(a['distTo']))
+    ans['largest_branch']=LB(mp.valueSet(a['edgeTo']))
+    return ans
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -229,20 +231,29 @@ def sumando(graph, v1, ad_v1, ans):
         y+=1
     return a
 
-def SMN(graph):
-    a=gr.vertices(graph)
+def SUMKM(l):
     y=1
+    k=0
 
-    while y<=lt.size(a):
-        v=int(lt.getElement(a, y))
-
-        try:
-            ans=dj.Dijkstra(graph, v)
-
-        except:
-            None
-        
-        finally:
-            return dj.Dijkstra(graph, v)
-        
+    while y<=lt.size(l):
+        e=lt.getElement(l,y)
+        k+=e
         y+=1
+    return k
+
+def LB(l):
+    y=1
+    w=0
+    a=None
+
+    while y<=lt.size(l):
+        e=lt.getElement(l,y)
+        print(e)
+        ew=e['weight']
+
+        if w<ew:
+            w=ew
+            a=e
+
+        y+=1
+    return a
