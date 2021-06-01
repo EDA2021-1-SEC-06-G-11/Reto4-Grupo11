@@ -23,9 +23,11 @@
 import config as cf
 import sys
 import controller
+import model
 from DISClib.ADT import map as mp
 from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
+from DISClib.DataStructures import mapentry as me
 assert cf
 default_limit = 10000
 sys.setrecursionlimit(default_limit*10) 
@@ -103,6 +105,13 @@ while True:
         ans=controller.reque2(catalog)
         p_rq3(ans)
 
+    elif int(inputs[0]) == 4:
+        paisA = input('Por favor digite el primer pais: ')
+        paisB = input('Por favor digite el segundo pais: ')
+        respuesta = controller.reque3(catalog,paisA,paisB)
+        print(respuesta)
+        
+    
     elif int(inputs[0]) == 5:
         print('Calculando red de expasión minima... ')
         ans=controller.reque4(catalog)
