@@ -39,8 +39,8 @@ def init():
 # Funciones para la carga de datos
 def loadData(catalog):
     loadCountries(catalog)
-    loadConnections(catalog)
     loadLandingPoints(catalog)
+    loadConnections(catalog)
 
 
 def loadConnections(catalog):
@@ -69,10 +69,19 @@ def loadLandingPoints(catalog):
 
 # Funciones de consulta sobre el catálogo
 
+def reque1(catalog,lp1,lp2):
+    ans = model.reque1(catalog,lp1,lp2)
+    return ans
+
 def reque2(catalog):
     ans=model.reque2(catalog)
     return ans
 
+def reque3(catalog,paisA,paisB):
+    
+    ans = model.reque3(catalog,paisA,paisB)
+    return ans
+    
 def reque4(catalog):
     ans=model.reque4(catalog)
     return ans

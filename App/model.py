@@ -26,6 +26,8 @@
 
 import config as cf
 from DISClib.Algorithms.Graphs import prim as p
+from math import radians, cos, sin, asin, sqrt
+from DISClib.Algorithms.Graphs import dijsktra as dj
 from DISClib.ADT import graph as gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -45,7 +47,8 @@ def newCatalog():
                'connections' : None,
                'landing_points':None,
                'LP_NtoI': None,
-               'components': None
+               'components': None,
+               'paths': None
              }
     
     catalog['connections_graph']=gr.newGraph(datastructure='ADJ_LIST', directed=True, size=10, comparefunction=compareOrigin)
@@ -53,9 +56,29 @@ def newCatalog():
     catalog['LP_NtoI']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['countries']=mp.newMap(maptype='PROBING', loadfactor=0.5)
     catalog['connections']=mp.newMap(maptype='PROBING', loadfactor=0.5)
+
     return catalog
 
 # Funciones para agregar informacion al catalogo
+
+# El autor de esta funcion es Michael Dunn sacada de internet porque pip no fue funcional en mi pc
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers. Use 3956 for miles
+    return c * r
+
+
 def addConnection(catalog, con):
     origin=int(getOrigin(con))
     destination=int(getDestination(con))
@@ -66,11 +89,14 @@ def addConnection(catalog, con):
     addLP(catalog, origin)
     addLP(catalog, destination)
 
-    distance=getDistance(con)
+    distance=getDistance(catalog,con)
     
     if distance>0:
         gr.addEdge(catalog['connections_graph'], origin, destination, distance)
+        gr.addEdge(catalog['connections_directed'], origin, destination, distance)
 
+    
+    
 def addCountry(catalog, country):
     c=getCountry(country).strip().lower()
     country['landing_points']=lt.newList()
@@ -81,19 +107,42 @@ def addCountry(catalog, country):
 
 def addLandingPoint(catalog, lp):
     name=getLPname(lp)
+
     lp['country']=name['country']
     lp['namee']=name['name']
     name=name['name'].lower().strip()
+
+    latlp = float(lp['latitude'])
+    lonlp = float(lp['longitude'])
     
     id=int(getLPid(lp))
 
     mp.put(catalog['LP_NtoI'], name, id)
     mp.put(catalog['landing_points'], id, lp)
+    n = lp['country']
+    c = mp.get(catalog['countries'],n)
+
+    country = me.getValue(c)
+    lista = me.getValue(c)['landing_points']
+    latca = float(country['CapitalLatitude'])
+    lonca = float(country['CapitalLongitude'])
+    distance = haversine(lonca,latca,lonlp,latlp)
+    res = {}
+    landing = lp['landing_point_id']
+    res[landing] = {}
+    res[landing]['name'] = name
+    res[landing]['distance'] = distance
+    lt.addLast(lista,res)
+
+
+
 
 
 def addLP(catalog, vertex):
     if not gr.containsVertex(catalog['connections_graph'], vertex):
         gr.insertVertex(catalog['connections_graph'], vertex)
+    if not gr.containsVertex(catalog['connections_directed'],vertex):
+        gr.insertVertex(catalog['connections_directed'],vertex)
     return catalog
 
 def addToCMAP(catalog, name, origin, destination, con):
@@ -122,8 +171,8 @@ def addToCMAP(catalog, name, origin, destination, con):
         
 
 # Funciones de consulta
-def getDistance(connection):
-    thing=connection['cable_length']
+def getDistance(catalog,connection):
+    '''thing=connection['cable_length']
     a=thing.strip().split()
     d=a[0]
     d=d.split(',')
@@ -137,10 +186,24 @@ def getDistance(connection):
         
     
     else:
-        distance=d[0]
+        distance=d[0]'''
+    
+    origin = float(getOrigin(connection))
+    destination = float(getDestination(connection))
+    coororigin = getcoordinates(catalog, origin)
+    coordestination = getcoordinates(catalog, destination)
+    distance = haversine(coororigin[1],coororigin[0],coordestination[1],coordestination[0])
+
 
 
     return float(distance)
+
+def getcoordinates(catalog, d):
+    l = mp.get(catalog['landing_points'],d)
+    lat = float(me.getValue(l)['latitude'])
+    lon = float(me.getValue(l)['longitude'])
+    coordinates = (lat,lon)
+    return coordinates
 
 def getOrigin(connection):
     a=connection['\ufefforigin']
@@ -156,7 +219,7 @@ def getName(connection):
 
 def getLPname(landing_point):
     a=landing_point['name']
-    a=a.strip().lower().split()
+    a=a.strip().lower().split(', ')
     k=len(a)-1
     b={'name':a[0], 'country':a[k]}
     return b
@@ -200,12 +263,54 @@ def reque4(catalog):
     return ans
 
     
-def reque1(catalog):
+def reque1(catalog,lp1,lp2):
 
-    catalog['components'] = scc.KosarajuSCC(catalog['connections_graph'])
+    catalog['components'] = scc.KosarajuSCC(catalog['connections_directed'])
     num = scc.connectedComponents(catalog['components'])
+    set1 = mp.get(catalog['LP_NtoI'],lp1)
+    id1 = me.getValue(set1)
+    set2 = mp.get(catalog['LP_NtoI'],lp2)
+    id2 = me.getValue(set2)
+    res = scc.stronglyConnected(catalog['components'],id1,id2)
+    return res,num
 
-    return gr.vertices(catalog['connections_graph'])
+def reque3(catalog,paisA,paisB):
+    pais1 = menor(catalog,paisA)
+    pais2 = menor(catalog,paisB)
+    respuesta = (pais1,pais2)
+
+    catalog['paths'] = dj.Dijkstra(catalog['connections_directed'],pais1)
+    ruta = dj.pathTo(catalog['paths'],pais2)
+    distancia = dj.distTo(catalog['paths'],pais2)
+
+    return ruta,distancia
+
+def menor(catalog,pais):
+    PA = mp.get(catalog['countries'],pais)
+    infoPA = me.getValue(PA)
+    capitalP1 = (infoPA['CapitalName']).lower()
+    capid = mp.get(catalog['LP_NtoI'],capitalP1)
+    menor = 0
+    id = ''
+    name = ''
+    respuesta = ''
+    if capid == None:
+        for i in lt.iterator(infoPA['landing_points']):
+            for t in i:
+                if menor == 0:
+                    menor = float(i[t]['distance'])
+                    id = t
+                    name = i[t]['name']
+                if float(i[t]['distance']) < menor:
+                    menor = float(i[t]['distance'])
+                    id = t
+                    name = i[t]['name']
+        respuesta = int(id)
+    else:
+        respuesta = me.getValue(capid)
+    
+
+    return respuesta
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
