@@ -124,6 +124,7 @@ while True:
     elif int(inputs[0]) == 6:
         lp= str(input('Escriba el landing point que le interesa: '))
         ans=controller.reque5(catalog, lp)
+        print('ya')
         'p_rq5(ans)'
 
 
