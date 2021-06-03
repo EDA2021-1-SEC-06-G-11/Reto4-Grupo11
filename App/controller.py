@@ -85,3 +85,7 @@ def reque3(catalog,paisA,paisB):
 def reque4(catalog):
     ans=model.reque4(catalog)
     return ans
+
+def reque5(catalog, lp):
+    ans=model.reque5(catalog, lp)
+    return ans

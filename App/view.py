@@ -41,7 +41,7 @@ operación solicitada
 """
 line='-----------------------------------------------------'
 
-def p_rq3(ans):
+def p_rq2(ans):
     print(line)
     main=mp.valueSet(ans['DC'])
     print('Se encontraron {0} landing points que sirven de interconexion para {1} cables'.format(lt.size(main), ans['k'])) 
@@ -55,6 +55,9 @@ def p_rq3(ans):
         y+=1
     print(line)
 
+def p_rq4(ans):
+    print(line)
+    print('Se encontraron {0} nodos,  ')
 
 def printMenu():
     print("Bienvenido")
@@ -63,6 +66,7 @@ def printMenu():
     print('3- Requerimiento 2- Landing points interconectados')
     print('4-  ')
     print('5- Requerimiento 4- Evaluación de infraestructura crítica')
+    print('6- Requerimiento 5- Impacto de fallo de un landing point')
     print(line)
 
 catalog = None
@@ -103,7 +107,7 @@ while True:
     elif int(inputs[0]) == 3:
         print('Calculando interconexión de landing points... ')
         ans=controller.reque2(catalog)
-        p_rq3(ans)
+        p_rq2(ans)
 
     elif int(inputs[0]) == 4:
         paisA = input('Por favor digite el primer pais: ')
@@ -115,8 +119,12 @@ while True:
     elif int(inputs[0]) == 5:
         print('Calculando red de expasión minima... ')
         ans=controller.reque4(catalog)
-        print(ans)
-        'p_rq4(ans)'
+        p_rq4(ans)
+
+    elif int(inputs[0]) == 6:
+        lp= str(input('Escriba el landing point que le interesa: '))
+        ans=controller.reque5(catalog, lp)
+        'p_rq5(ans)'
 
 
 

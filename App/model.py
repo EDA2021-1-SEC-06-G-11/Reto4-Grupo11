@@ -169,7 +169,7 @@ def addToCMAP(catalog, name, origin, destination, con):
 
 # Funciones de consulta
 def getDistance(catalog,connection):
-    '''thing=connection['cable_length']
+    thing=connection['cable_length']
     a=thing.strip().split()
     d=a[0]
     d=d.split(',')
@@ -183,7 +183,7 @@ def getDistance(catalog,connection):
         
     
     else:
-        distance=d[0]'''
+        distance=d[0]
     
     origin = float(getOrigin(connection))
     destination = float(getDestination(connection))
@@ -282,32 +282,18 @@ def reque3(catalog,paisA,paisB):
 
     return ruta,distancia
 
-def menor(catalog,pais):
-    PA = mp.get(catalog['countries'],pais)
-    infoPA = me.getValue(PA)
-    capitalP1 = (infoPA['CapitalName']).lower()
-    capid = mp.get(catalog['LP_NtoI'],capitalP1)
-    menor = 0
-    id = ''
-    name = ''
-    respuesta = ''
-    if capid == None:
-        for i in lt.iterator(infoPA['landing_points']):
-            for t in i:
-                if menor == 0:
-                    menor = float(i[t]['distance'])
-                    id = t
-                    name = i[t]['name']
-                if float(i[t]['distance']) < menor:
-                    menor = float(i[t]['distance'])
-                    id = t
-                    name = i[t]['name']
-        respuesta = int(id)
-    else:
-        respuesta = me.getValue(capid)
-    
+def reque5(catalog, lp):
+    lp=lp.lower().strip()
+    id=mp.get(catalog['LP_NtoI'], lp)
+    id=me.getValue(id)
 
-    return respuesta
+    main=gr.adjacents(catalog['connections_graph'], id)
+    ans=mp.newMap(maptype='PROBING', loadfactor=0.5)
+
+    for mid in main:
+        dis_related_country(catalog, ans, mid, id)
+    
+    return ans
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -368,3 +354,37 @@ def LB(l):
 
         y+=1
     return a
+
+def menor(catalog,pais):
+    PA = mp.get(catalog['countries'],pais)
+    infoPA = me.getValue(PA)
+    capitalP1 = (infoPA['CapitalName']).lower()
+    capid = mp.get(catalog['LP_NtoI'],capitalP1)
+    menor = 0
+    id = ''
+    name = ''
+    respuesta = ''
+    if capid == None:
+        for i in lt.iterator(infoPA['landing_points']):
+            for t in i:
+                if menor == 0:
+                    menor = float(i[t]['distance'])
+                    id = t
+                    name = i[t]['name']
+                if float(i[t]['distance']) < menor:
+                    menor = float(i[t]['distance'])
+                    id = t
+                    name = i[t]['name']
+        respuesta = int(id)
+    else:
+        respuesta = me.getValue(capid)
+    
+
+    return respuesta
+
+def dis_related_country(catalog, ans, mid, id):
+    d=gr.getEdge(catalog['connections_graph'], id, mid)
+    a=mp.get(catalog['landing_points'], mid)
+    lp=me.getValue(a)
+    c=lp['country']
+    mp.put(ans, d, c)
