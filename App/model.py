@@ -288,14 +288,15 @@ def reque5(catalog, lp):
     id=int(me.getValue(id))
 
     main=gr.adjacents(catalog['connections_graph'], id)
-    ans=mp.newMap(maptype='PROBING', loadfactor=0.5)
-
+    ans = lt.newList()
+    
     y=1
     while y<=lt.size(main):
         mid=lt.getElement(main,y)
         dis_related_country(catalog, ans, mid, id)
 
-        y+=1    
+        y+=1  
+
     return ans
 
 
@@ -391,4 +392,4 @@ def dis_related_country(catalog, ans, mid, id):
     lp=me.getValue(a)
     c=lp['country']
     d=d['weight']
-    mp.put(ans, d, c)
+    lt.addLast(ans,c)
