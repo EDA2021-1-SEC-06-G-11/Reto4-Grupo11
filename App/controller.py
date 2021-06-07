@@ -20,9 +20,11 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+from ipapi.ipapi import location
 import config as cf
 import model
 import csv
+import ipapi as ip
 
 
 """
@@ -89,3 +91,8 @@ def reque4(catalog):
 def reque5(catalog, lp):
     ans=model.reque5(catalog, lp)
     return ans
+
+def reque7(catalog, ip1, ip2):
+    l1=ip.location(ip1)
+    l2=ip-location(ip2)
+    ans=model.reque7(catalog, l1, l2)

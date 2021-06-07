@@ -57,7 +57,22 @@ def p_rq2(ans):
 
 def p_rq4(ans):
     print(line)
-    print('Se encontraron {0} nodos,  ')
+    print('Se encontraron {0} nodos, el costo total de la red en km es {1}.'
+    .format(ans['nodes'], ans['total_km']))
+    print('La rama más larga va de {0} a {1} y mide {2} km'
+    .format(ans['largest_branch']['vertexA'], ans['largest_branch']['vertexB'], ans['largest_branch']['weight']))
+
+def p_rq7(ans):
+    print(line)
+    print('La ruta es:')
+
+    y=1
+    while y<=lt.size(ans):
+        e=lt,lt.getElement(ans, y)
+        print(e)
+
+        y+=1
+    print(y-1)
 
 def printMenu():
     print("Bienvenido")
@@ -67,6 +82,7 @@ def printMenu():
     print('4-  ')
     print('5- Requerimiento 4- Evaluación de infraestructura crítica')
     print('6- Requerimiento 5- Impacto de fallo de un landing point')
+    print('8- Requerimiento 7- Conexión de direcciones IP')
     print(line)
 
 catalog = None
@@ -124,10 +140,13 @@ while True:
     elif int(inputs[0]) == 6:
         lp= str(input('Escriba el landing point que le interesa: '))
         ans=controller.reque5(catalog, lp)
-        print('ya')
         'p_rq5(ans)'
 
-
+    elif int(inputs[0]) == 8:
+        ip1= str(input('Escriba la primera IP: '))
+        ip2= str(input('Escriba la segunda IP: '))
+        ans=controller.reque7(catalog, ip1, ip2)
+        p_rq7(ans)
 
     else:
         sys.exit(0)

@@ -24,6 +24,7 @@
  * Dario Correal - Version inicial
  """
 
+from DISClib.Algorithms.Graphs.dfs import pathTo
 import config as cf
 from DISClib.Algorithms.Graphs import prim as p
 from math import radians, cos, sin, asin, sqrt
@@ -122,7 +123,7 @@ def addLandingPoint(catalog, lp):
     c = mp.get(catalog['countries'],n)
 
     country = me.getValue(c)
-    lista = me.getValue(c)['landing_points']
+    lista = country['landing_points']
     latca = float(country['CapitalLatitude'])
     lonca = float(country['CapitalLongitude'])
     distance = haversine(lonca,latca,lonlp,latlp)
@@ -131,10 +132,9 @@ def addLandingPoint(catalog, lp):
     res[landing] = {}
     res[landing]['name'] = name
     res[landing]['distance'] = distance
+    res[landing]['latlp'] = latlp
+    res[landing]['lonlp'] = lonlp
     lt.addLast(lista,res)
-
-
-
 
 
 def addLP(catalog, vertex):
@@ -255,8 +255,8 @@ def reque4(catalog):
     a=p.PrimMST(main)
     ans={'nodes':0 , 'total_km': 0 , 'largest_branch':0}
     ans['nodes']=gr.numVertices(main)
-    ans['total_km']=SUMKM(mp.valueSet(a['distTo']))
-    ans['largest_branch']=LB(mp.valueSet(a['edgeTo']))
+    ans['total_km']=p.weightMST(catalog['connections_graph'], a)
+    ans['largest_branch']=LB(a['edgeTo'])
     return ans
 
     
@@ -297,6 +297,21 @@ def reque5(catalog, lp):
 
         y+=1    
     return ans
+
+def reque7(catalog, l1, l2):
+    lp1=LPcercano(catalog,l1)
+    lp2=LPcercano(catalog, l2)
+
+    n1=lp1.keys()
+    n1=int(n1[1])
+    n2=lp2.keys()
+    n2=int(n2[1])
+
+    s=dj.Dijkstra(catalog['connections_graph'], n1)
+
+    main=pathTo(s, n2)
+
+    return main
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -342,7 +357,8 @@ def SUMKM(l):
         y+=1
     return k
 
-def LB(l):
+def LB(main):
+    l=mp.valueSet(main)
     y=1
     w=0
     a=None
@@ -392,3 +408,44 @@ def dis_related_country(catalog, ans, mid, id):
     c=lp['country']
     d=d['weight']
     mp.put(ans, d, c)
+
+def LPcercano(catalog,l):
+    country=l['country_name'].lower().strip()
+    a=mp.get(catalog['countries'], country)
+    a=me.getValue(a)
+    lps=a['landing_points']
+
+    lLat=float(l['latitude'])
+    lLon=float(l['longitude'])
+
+    s=None
+    h=0
+    y=1
+    while y<=lt.size(lps):
+        e=lt.getElement(lps, y)
+        a=list(e.keys())
+        a=a[0]
+        mini=e[a]
+        mlat=mini['latlp']
+        mlon=mini['lonlp']
+
+        if h==0:
+            h=haversine(lLon, lLat, mlon, mlat)
+            s=e
+
+        elif h>haversine(lLon, lLat, mlon, mlat):
+            h=haversine(lLon, lLat, mlon, mlat)
+            s=e
+
+        y+=1
+    return s
+
+def blabla(a):
+    a=a['edgeTo']
+    a=mp.valueSet(a)
+
+    y=1
+    while y<=lt.size(a):
+        e=lt.getElement(a, y)
+        print(e)
+        y+=1
